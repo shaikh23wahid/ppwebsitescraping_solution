@@ -1,9 +1,11 @@
-var request = require("request");
+﻿var request = require("request");
 var cheerio = require("cheerio");
 var fs = require('fs');
+var express=require('express');
+var app=express();
+app.use(express.static(__dirname + '/public'));
 
-
-    //url = "http://www.wunderground.com/cgi-bin/findweather/getForecast?&query=" + 02888;
+app.get('/scrape', function(req, res){
     url = "http://www.asx.com.au/asx/markets/equityPrices.do?by=asxCodes&asxCodes=ppl";
 
 request(url, function (error, response, body) {
@@ -13,7 +15,7 @@ request(url, function (error, response, body) {
             tdelement1 = $("#content > table.datatable tr").eq(1).find("th");
             tdelement2 = $("#content > table.datatable tr").eq(1).find("td");
 
-        var newArr =[];
+        var newArr =[]; 
         newArr.push(tdelement1.find("a").text());
 
       var imgsrc= "http://www.asx.com.au"+tdelement2.find("a > img").attr("src");
@@ -26,12 +28,6 @@ request(url, function (error, response, body) {
 
         $(trelement).each(function(tr_index) {
             var fieldname="";
-            /*fieldname=$(this).html();
-            if(fieldname!="") {
-                fieldname=$(this).find("a").text();
-            }*/
-
-            //console.log($(this).text());
             if($(this).text()=="Chart"){
                 myData[$(this).text()]=   imgsrc
             }else {
@@ -39,18 +35,9 @@ request(url, function (error, response, body) {
             }
             });
 
-        //console.log(newArr)
         console.log(myData)
 
-        /*download(imgsrc, 'chart.gif', function() {
-            var img = fs.readFileSync('./chart.gif');
-            res.writeHead(200, {
-                'Content-Type': 'image/gif'
-            });
-            res.end(img, 'binary');
-        });*/
-
-        var outputFilename = 'mysharesdata.json';
+        var outputFilename = 'public/mysharesdata.json';
         fs.writeFile(outputFilename, JSON.stringify(myData, null, 4), function(err) {
             if(err) {
                 console.log(err);
@@ -62,10 +49,11 @@ request(url, function (error, response, body) {
         console.log("We�ve encountered an error: " + error);
     }
 });
+});
 
-var download = function(uri, filename, callback) {
-    request.head(uri, function(err, res, body) {
-        console.log('content-type:', res.headers['content-type']);
-        request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
-    });
-};
+
+
+
+app.listen('8081')
+console.log('Magic happens on port 8081');
+exports = module.exports = app;
