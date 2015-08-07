@@ -5,9 +5,9 @@ var express=require('express');
 var app=express();
 app.use(express.static(__dirname + '/public'));
 
-app.get('/scrape', function(req, res){
-    url = "http://www.asx.com.au/asx/markets/equityPrices.do?by=asxCodes&asxCodes=ppl";
+//app.get('/scrape', function(req, res){
 
+url = "http://www.asx.com.au/asx/markets/equityPrices.do?by=asxCodes&asxCodes=ppl";
 request(url, function (error, response, body) {
     if (!error) {
         var $ = cheerio.load(body),
@@ -37,7 +37,7 @@ request(url, function (error, response, body) {
 
         console.log(myData)
 
-        var outputFilename = 'public/mysharesdata.json';
+        var outputFilename = 'public/asx/ppsharesdata.json';
         fs.writeFile(outputFilename, JSON.stringify(myData, null, 4), function(err) {
             if(err) {
                 console.log(err);
@@ -49,7 +49,8 @@ request(url, function (error, response, body) {
         console.log("We�ve encountered an error: " + error);
     }
 });
-});
+
+//});
 
 
 
